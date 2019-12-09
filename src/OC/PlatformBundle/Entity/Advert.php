@@ -75,7 +75,7 @@ class Advert
     private $categories;
 
     /**
-     * @ORM\OneToMany(targetEntity="OCPlatformBundle\Entity\Application",
+     * @ORM\OneToMany(targetEntity="OC\PlatformBundle\Entity\Application",
      * mappedBy="advert")
      */
     private $applications;

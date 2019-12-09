@@ -87,7 +87,7 @@ class AdvertController extends Controller
             'advert'           => $advert,
             'listApplications' => $listApplications,
             'listAdvertSkills' => $listAdvertSkills
-        ]);
+            ]);
     }
 
 
@@ -184,6 +184,25 @@ class AdvertController extends Controller
         $em->flush();
 
         return $this->render('@OCPlatform/Advert/delete.html.twig');
+    }
+
+
+    public function listAction()
+    {
+        $listAdverts = $this
+            ->getDoctrine()
+            ->getManager()
+            ->getRepository('OCPlatformBundle:Advert')
+            ->getAdvertWithApplications();
+        foreach ($listAdverts as $advert) {
+            // Ne déclenche pas de requête : les candidatures sont déjà chargées !
+            // Vous pourriez faire une boucle dessus pour les afficher toutes
+            var_dump($advert);
+            var_dump($advert->getApplications());
+            // $advert->getApplications();
+        }
+
+        die();
     }
 
 

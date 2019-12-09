@@ -10,6 +10,10 @@ oc_platform_byebye_world:
     path:       /byebye-world 
     defaults: { _controller: OCPlatformBundle:Advert:index2 } 
 
+oc_advert_list:
+    path:       /list
+    controller: OCPlatformBundle:Advert:list  # Pour mes tests
+
 
 oc_advert_home:
     path:       /{page}

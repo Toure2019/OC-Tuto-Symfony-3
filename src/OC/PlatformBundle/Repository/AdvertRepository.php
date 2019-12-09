@@ -2,6 +2,8 @@
 
 namespace OC\PlatformBundle\Repository;
 
+use Doctrine\ORM\QueryBuilder;
+
 /**
  * AdvertRepository
  *
@@ -10,4 +12,95 @@ namespace OC\PlatformBundle\Repository;
  */
 class AdvertRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function myFindAll()
+    {
+        // Méthode 1 : en passant par l'EntityManager
+        /* $queryBuilder = $this->_em->createQueryBuilder()
+        ->select('a')
+        ->from($this->_entityName, 'a'); */
+        // Ds 1 repository, $this->_entityName est le namespace de l'entité 
+        // gérée  // Ici, il vaut donc OC\PlatformBundle\Entity\Advert
+
+        return $this
+            ->createQueryBuilder('a')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function myFindOne($id)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->where('a.id = :id')
+           ->setParameter('id', $id);
+        
+        return $qb->getQuery()
+                  ->getResult();
+    }
+
+    public function findByAuthorAndDate($author, $year)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->where('a.author = :author')
+            ->setParameter('author', $author)
+            ->andWhere('a.date < :year')
+            ->setParameter('year', $year)
+            ->orderBy('a.date', 'DESC');
+
+        return $qb
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function whereCurrentYear(QueryBuilder $qb)
+    {
+        $qb->andWhere('a.date BETWEEN :start AND :end')
+            ->setParameter('start', new \Datetime(date('Y').'-01-01'))  
+            // Date entre le 1er janvier de cette année
+            ->setParameter('end',   new \Datetime(date('Y').'-12-31'));  
+            // Et le 31 décembre de cette année
+    }
+
+    public function myFind()
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->where('a.author = :author')
+           ->setParameter('author', 'Marine');
+
+        // On applique notre condition sur le QueryBuilder
+        $this->whereCurrentYear($qb);
+        $qb->orderBy('a.date', 'DESC');
+
+        return $qb->getQuery()
+                  ->getResult();
+    }
+
+
+    public function myFindAllDQL()
+    {
+        $query = $this->_em->createQuery('SELECT a FROM OCPlatformBundle:Advert a');
+        $results = $query->getResult();
+
+        return $results;
+    }
+
+    public function myFindDQL($id)
+    {
+        $query = $this->_em->createQuery('SELECT a FROM OCPlatformBundle:Advert a WHERE a.id = :id');
+        $query->setParameter('id', $id);
+    
+        // Utilisation de getSingleResult car la requête ne doit retourner qu'un seul résultat
+        return $query->getSingleResult();
+    }
+
+    /* --------- Les Jointures Dans nôs Requêtes ------------- */
+
+    public function getAdvertWithApplications()
+    {
+        $qb = $this->createQueryBuilder('a')
+                   ->leftJoin('a.applications', 'app')
+                   ->addSelect('app');
+
+        return $qb->getQuery()->getResult();
+    }
+
 }
