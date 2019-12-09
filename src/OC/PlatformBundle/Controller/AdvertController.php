@@ -3,6 +3,7 @@ namespace OC\PlatformBundle\Controller;
 
 use OC\PlatformBundle\Entity\Image;
 use OC\PlatformBundle\Entity\Advert;
+use OC\PlatformBundle\Entity\AdvertSkill;
 use OC\PlatformBundle\Entity\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -65,84 +66,60 @@ class AdvertController extends Controller
     public function viewAction($id)
     {
         $em = $this->getDoctrine()->getManager();
-        $repo = $em->getRepository('OCPlatformBundle:Advert');
-        
-        // On récupère l'entité correspondante à l'id
-        $advert = $repo->find($id);
-        if (null == $advert) {
-            throw new NotFoundException("L'annonce ".$id." n'existe pas");
-        } 
 
-        // On récupère la liste des candidatures de cette annonce
-        $listApplications = $em
-            ->getRepository('OCPlatformBundle:Application')
-            ->findBy(array('advert' => $advert));
+        // On récupère l'annonce $id
+        $advert = $em->getRepository('OCPlatformBundle:Advert')
+                     ->find($id);
+
+        if (null === $advert) {
+            throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
+        }
+
+        // On avait déjà récupéré la liste des candidatures
+        $listApplications = $em->getRepository('OCPlatformBundle:Application')
+                               ->findBy(array('advert' => $advert));
+
+        // On récupère maintenant la liste des AdvertSkill
+        $listAdvertSkills = $em->getRepository('OCPlatformBundle:AdvertSkill')
+                               ->findBy(array('advert' => $advert));
 
         return $this->render('@OCPlatform/Advert/view.html.twig', [
-            'advert' => $advert,
-            'listApplications' => $listApplications
+            'advert'           => $advert,
+            'listApplications' => $listApplications,
+            'listAdvertSkills' => $listAdvertSkills
         ]);
     }
 
 
     public function addAction(Request $request)
     {
-        // Création de l'entité
-        $advert = new Advert();
-        $advert->setTitle('Recherche de developpeur Symfony 3');
-        $advert->setAuthor('Thomas');
-        $advert->setContent('Nous recherchons un développeur Symfony 3 débutant sur Paris...');
-
-        // Création de l'entité Image
-        $image = new Image();
-        $image->setUrl('http://sdz-upload.s3.amazonaws.com/prod/upload/job-de-reve.jpg');
-        $image->setAlt('Job de rêve');
-        // On lie l'image à l'annonce
-        $advert->setImage($image);
-
-        // Création d'une première candidature
-        $application1 = new Application();
-        $application1->setAuthor('Marine');
-        $application1->setContent("J'ai toutes les qualités requises.");
-
-        // Création d'une deuxième candidature par exemple
-        $application2 = new Application();
-        $application2->setAuthor('Pierre');
-        $application2->setContent("Je suis très motivé.");
-
-        // On lie les candidatures à l'annonce
-        $application1->setAdvert($advert);
-        $application2->setAdvert($advert);
-
-        // On récupère l'EntityManager
         $em = $this->getDoctrine()->getManager();
+        $advert = new Advert();
+        $advert->setTitle('Recherche développeur PHP POO.');
+        $advert->setAuthor('Djikalou');
+        $advert->setContent("Nous recherchons un développeur PHP POO débutant sur Lyon. Blabla…");
 
-        // Etape 1: On persist l'entité
+        // On récupère toutes les compétences possible
+        $listSkills = $em->getRepository('OCPlatformBundle:Skill')->findAll();
+
+        // Pour chaque compétence
+        foreach ($listSkills as $skill) {
+            // on crée une relation entre 1 annonce et 1 compétence
+            $advertSkill = new AdvertSkill();
+            // On la lie à l'annonce, qui est ici toujours la même
+            $advertSkill->setAdvert($advert);
+            // On la lie à la compétence, qui change ici dans la boucle
+            $advertSkill->setSkill($skill);
+
+            // Arbitrairement, on dit que chaque compétence est requise au niveau 'Expert'
+            $advertSkill->setLevel('Expert');
+
+            // Et bien sûr, on persiste cette entité de relation, propriétaire des deux autres relations
+            $em->persist($advertSkill);
+        }
         $em->persist($advert);
-        $em->persist($application1);
-        $em->persist($application2);
-
-        // Étape 1 bis : si on n'avait pas défini le cascade={"persist"},
-        // on devrait persister à la main l'entité $image
-        // $em->persist($image);
-
-        // Etape 2: On "flush" tout ce qui a été persisté
         $em->flush();
 
-        // // On récupère le service
-        // $antispam = $this->container->get('oc_platform.antispam');
-        // // $text contient le txt d1 msg qlqconque
-        // $text = 'Un message quelconque';
-        // if ($antispam->isSpam($text)) {
-        //     throw new \Exception('Votre message a été détecté com spam !');
-        // }
-
-        if ($request->isMethod('POST')) {
-            $this->addFlash('notice', 'Annonce bien enregistrée.');
-            return $this->redirectToRoute('oc_avdvert_view', [
-                'id' => $advert->getId()
-            ]);
-        }
         return $this->render('@OCPlatform/Advert/add.html.twig', [
             'advert' => $advert
         ]);

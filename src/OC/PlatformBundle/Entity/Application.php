@@ -1,6 +1,10 @@
 <?php
 // src/OC/PlatformBundle/Entity/Application.php
-// Entité propriétaire : (celle qui contiendra l'attribut de Advert)
+//UD 1-Entité propriétaire : (celle qui contiendra l'attribut de Advert)
+
+/* BD 2-Entité Propriéte de "Advert ajout uniqmt inversedBy="applications" 
+ds l'annotation existante (pour rendre Bidirect°) Getter & Setter deja là
+*/
 
 namespace OC\PlatformBundle\Entity;
 
@@ -35,7 +39,8 @@ class Application
   private $date;
 
     /**
-     * @ORM\ManyToOne(targetEntity="OC\PlatformBundle\Entity\Advert")
+     * @ORM\ManyToOne(targetEntity="OC\PlatformBundle\Entity\Advert",
+     * inversedBy="applications")
      * @ORM\JoinColumn(nullable=false)
      */
     private $advert;
