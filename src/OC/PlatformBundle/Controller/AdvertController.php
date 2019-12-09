@@ -190,19 +190,24 @@ class AdvertController extends Controller
     public function listAction()
     {
         $listAdverts = $this
-            ->getDoctrine()
-            ->getManager()
-            ->getRepository('OCPlatformBundle:Advert')
-            ->getAdvertWithApplications();
-        foreach ($listAdverts as $advert) {
-            // Ne déclenche pas de requête : les candidatures sont déjà chargées !
-            // Vous pourriez faire une boucle dessus pour les afficher toutes
-            var_dump($advert);
-            var_dump($advert->getApplications());
-            // $advert->getApplications();
-        }
+            ->getDoctrine()->getManager()
+            // ->getRepository('OCPlatformBundle:Advert')
+            ->getRepository('OCPlatformBundle:Application')
+            ->getApplicationsWithAdvert(3);
+            // ->getAdvertWithCategories(['Graphisme', 'Réseau']);
+            // ->getAdvertWithApplications();
 
-        die();
+        // foreach ($listAdverts as $advert) {
+        //     // Ne déclenche pas de req : les candidature st déjà chargées !
+        //     // Vous pourriez faire 1 boucle dessus pr les afficher tous
+        //     var_dump($advert);
+        //     var_dump($advert->getApplications());
+        //     // $advert->getApplications();
+        // }
+
+        return $this->render('@OCPlatform/Advert/test.html.twig', [
+            'listAdverts' => $listAdverts
+        ]);
     }
 
 

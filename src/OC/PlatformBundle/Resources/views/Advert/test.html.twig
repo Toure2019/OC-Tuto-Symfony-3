@@ -1,0 +1,37 @@
+{# src/OC/PlatformBundle/Resources/views/Advert/view.html.twig #}
+
+{% extends "@OCPlatform/layout.html.twig" %}
+
+{% block title %}
+  Tests Persos - {{ parent() }}
+{% endblock %}
+
+{% block ocplatform_body %}
+
+  <h1> Test Persos </h1>
+
+  <div class="well">
+    <ul>
+      {% for advert in listAdverts %}
+        <li>
+          <b>{{ advert.author }}</b>
+          par {{ advert.author }},
+          le {{ advert.date|date('d/m/Y') }}
+          <p>{{ advert.content }}</p>
+
+            <ul>
+                {# {% for cat in advert.advert %} #}
+                    <li>- {{ advert.advert.title }}</li>
+                {# {% else %} #}
+                    {# <li>*** Pas de categories</li> #}
+                {# {% endfor %} #}
+            </ul>
+        </li>
+
+      {% else %}
+        <li>Pas d'annonces</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+{% endblock %}
