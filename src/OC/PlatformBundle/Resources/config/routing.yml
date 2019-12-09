@@ -1,0 +1,50 @@
+oc_platform_homepage:
+    path:     /home
+    defaults: { _controller: OCPlatformBundle:Default:index }
+
+oc_platform_hello_the_world:
+    path:       /hello-world
+    controller: OCPlatformBundle:Advert:index1
+
+oc_platform_byebye_world:
+    path:       /byebye-world 
+    defaults: { _controller: OCPlatformBundle:Advert:index2 } 
+
+
+oc_advert_home:
+    path:       /{page}
+    controller: OCPlatformBundle:Advert:index
+    requirements:
+        page: \d+
+    defaults:   { page: 1 }
+
+oc_advert_view:
+    path:       /view/{id}
+    controller: OCPlatformBundle:Advert:view
+    requirements:
+        id: \d+
+
+oc_advert_add:
+    path:       /add
+    controller: OCPlatformBundle:Advert:add
+
+oc_advert_edit:
+    path:       /edit/{id}
+    controller: OCPlatformBundle:Advert:edit
+    requirements:
+        id: \d+
+
+oc_advert_delete:
+    path:       /delete/{id}
+    controller: OCPlatformBundle:Advert:delete
+    requirements:
+        id: \d+
+
+
+oc_advert_view_slug:
+    path:       /view/{year}/{slug}.{_format}
+    controller: OCPlatformBundle:Advert:viewSlug
+    requirements:
+        year: \d{4}
+        _format: html|xml
+    defaults:   { _format: html }

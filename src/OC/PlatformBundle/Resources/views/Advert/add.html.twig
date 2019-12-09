@@ -1,0 +1,27 @@
+{# src/OC/PlatformBundle/Resources/views/Advert/add.html.twig #}
+
+{% extends "@OCPlatform/layout.html.twig" %}
+
+{% block title %}
+  Ajouter une annonce - {{ parent() }}
+{% endblock %}
+
+{% block ocplatform_body %}
+
+  <h2>Ajouter une annonce</h2>
+
+  {{ include("@OCPlatform/Advert/form.html.twig") }}
+
+  <p>
+    Vous ajoutez une annonce, merci de respecter
+    l'esprit général de l'annonce à publiée.
+  </p>
+
+  {# <p>
+    <a href="{{ path('oc_advert_view', {'id': advert.id}) }}" class="btn btn-default">
+      <i class="glyphicon glyphicon-chevron-left"></i>
+      Retour à l'annonce
+    </a> #}
+  </p>
+
+{% endblock %}
