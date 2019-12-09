@@ -95,29 +95,33 @@ class AdvertController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $advert = new Advert();
-        $advert->setTitle('Recherche développeur PHP POO.');
-        $advert->setAuthor('Djikalou');
-        $advert->setContent("Nous recherchons un développeur PHP POO débutant sur Lyon. Blabla…");
+        $advert->setTitle('Recherche développeur Node.JS.');
+        $advert->setAuthor('Mr Redwan');
+        $advert->setContent("Nous recherchons un développeur Node.JS débutant sur Rouen. Blabla…");
 
-        // On récupère toutes les compétences possible
-        $listSkills = $em->getRepository('OCPlatformBundle:Skill')->findAll();
+        // $listSkills = $em->getRepository('OCPlatformBundle:Skill')->findAll();
+        // foreach ($listSkills as $skill) {
+        //     $advertSkill = new AdvertSkill();
+        //     $advertSkill->setAdvert($advert);
+        //     $advertSkill->setSkill($skill);
+        //     $advertSkill->setLevel('Débutant');
+        //     $em->persist($advertSkill);
+        // }
 
-        // Pour chaque compétence
-        foreach ($listSkills as $skill) {
-            // on crée une relation entre 1 annonce et 1 compétence
-            $advertSkill = new AdvertSkill();
-            // On la lie à l'annonce, qui est ici toujours la même
-            $advertSkill->setAdvert($advert);
-            // On la lie à la compétence, qui change ici dans la boucle
-            $advertSkill->setSkill($skill);
+        $application1 = new Application();
+        $application1->setAuthor('Abdoulaye');
+        $application1->setContent("J'ai toutes les qualités requises.");
 
-            // Arbitrairement, on dit que chaque compétence est requise au niveau 'Expert'
-            $advertSkill->setLevel('Expert');
+        $application2 = new Application();
+        $application2->setAuthor('Mariame');
+        $application2->setContent("Je suis très motivé.");
 
-            // Et bien sûr, on persiste cette entité de relation, propriétaire des deux autres relations
-            $em->persist($advertSkill);
-        }
+        $application1->setAdvert($advert);
+        $application2->setAdvert($advert);
+
         $em->persist($advert);
+        $em->persist($application1);
+        $em->persist($application2);
         $em->flush();
 
         return $this->render('@OCPlatform/Advert/add.html.twig', [
@@ -140,7 +144,7 @@ class AdvertController extends Controller
         if (null === $advert) {
             throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
         }
-        $advert->getImage()->setUrl("https://place-hold.it/300");
+        $advert->getImage()->setUrl("https://place-hold.it/300x150");
 
          // La méthode findAll retourne toutes les catégories de la base de données
         $listCategories = $em->getRepository('OCPlatformBundle:Category')->findAll();
