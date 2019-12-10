@@ -10,7 +10,9 @@
 
   <h1> Test Persos </h1>
 
-  <div class="well">
+  {{ dump(listAdverts) }}
+
+  {# <div class="well">
     <ul>
       {% for advert in listAdverts %}
         <li>
@@ -21,17 +23,17 @@
 
             <ul>
                 {# {% for cat in advert.advert %} #}
-                    <li>- {{ advert.advert.title }}</li>
+                    {# <li>- {{ advert.advert.title }}</li> #}
                 {# {% else %} #}
                     {# <li>*** Pas de categories</li> #}
                 {# {% endfor %} #}
-            </ul>
+            {# </ul>
         </li>
 
       {% else %}
         <li>Pas d'annonces</li>
       {% endfor %}
     </ul>
-  </div>
+  </div> #}
 
 {% endblock %}

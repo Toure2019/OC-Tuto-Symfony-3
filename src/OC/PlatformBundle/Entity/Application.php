@@ -1,5 +1,5 @@
 <?php
-// src/OC/PlatformBundle/Entity/Application.php
+// src/OC/PlatformBundle/Entity/Application.php 
 //UD 1-Entité propriétaire : (celle qui contiendra l'attribut de Advert)
 
 /* BD 2-Entité Propriéte de "Advert ajout uniqmt inversedBy="applications" 

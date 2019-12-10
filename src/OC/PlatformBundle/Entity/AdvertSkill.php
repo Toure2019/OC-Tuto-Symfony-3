@@ -3,6 +3,10 @@
 // 1- Entité prioritaire (pour Advert & Skill)
 /* Comme les côtés Many des deux relations Many-To-One sont dansAdvertSkill, cette entité est l'entité propriétaire des deux relations. */
 
+/* BD 2-Entité Propriéte de "Advert ajout inversedBy="advertSkills" 
+ds l'annotation existante (pour rendre Bidirect°) + Getter & Setter 
+*/
+
 namespace OC\PlatformBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -26,7 +30,8 @@ class AdvertSkill
   private $level;
 
   /**
-   * @ORM\ManyToOne(targetEntity="OC\PlatformBundle\Entity\Advert")
+   * @ORM\ManyToOne(targetEntity="OC\PlatformBundle\Entity\Advert",
+   * inversedBy="advertSkills")
    * @ORM\JoinColumn(nullable=false)
    */
   private $advert;
