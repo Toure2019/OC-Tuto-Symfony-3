@@ -3,6 +3,7 @@ namespace OC\PlatformBundle\Controller;
 
 use OC\PlatformBundle\Entity\Image;
 use OC\PlatformBundle\Entity\Advert;
+use OC\PlatformBundle\Form\AdvertType;
 use OC\PlatformBundle\Entity\AdvertSkill;
 use OC\PlatformBundle\Entity\Application;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,48 +71,24 @@ class AdvertController extends Controller
 
     public function addAction(Request $request)
     {
-        // On crée un objet Advert
         $advert = new Advert();
-        // $advert = $this->getDoctrine()->getManager()
-        //                 ->getRepository('OCPlatformBundle:Advert')->find(14);
+        $form = $this->createForm(AdvertType::class, $advert);
+        //$form=$this->get('form.factory')->create(AdvertType::class,$advert);
 
-        // On crée le FormBuilder grâce au service form factory
-        $formBuilder = $this->get('form.factory')->createBuilder(FormType::class, $advert);
+        if ($request->isMethod('POST') && 
+            $form->handleRequest($request)->isValid()) {
 
-        // On ajoute les champs de l'entité que l'on veut à notre formulaire
-        $formBuilder
-            ->add('date',      DateType::class)
-            ->add('title',     TextType::class)
-            ->add('content',   TextareaType::class)
-            ->add('author',    TextType::class)
-            ->add('published', CheckboxType::class, [
-                'required' => false
-            ])
-            ->add('save',      SubmitType::class);
-
-        // À partir du formBuilder, on génère le formulaire
-        $form = $formBuilder->getForm();
-
-        if ($request->isMethod('POST')) {
-            // On fait le lien Requête <-> Formulaire
-            // $advert contient les valeurs entrées ds le formulaire par user
-            $form->handleRequest($request);
-
-            if ($form->isValid()) {
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($advert);
-                $em->flush();
-                $request->getSession()->getFlashBag()
-                        ->add('notice', 'Annonce bien enregistrée.');
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($advert);
+            $em->flush();
+            $request->getSession()->getFlashBag()
+                    ->add('notice', 'Annonce bien enregistrée.');
                 
-                return $this->redirectToRoute('oc_advert_view', [
-                    'id' => $advert->getId()
-                ]);
-            }
+            return $this->redirectToRoute('oc_advert_view', [
+                'id' => $advert->getId()
+            ]);
         }
 
-        // On passe la méthode createView() du formulaire à la vue
-        // afin qu'elle puisse afficher le formulaire toute seule
         return $this->render('@OCPlatform/Advert/add.html.twig', [
             'form' => $form->createView()
         ]);
