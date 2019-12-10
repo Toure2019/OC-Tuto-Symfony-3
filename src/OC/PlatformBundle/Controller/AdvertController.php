@@ -13,55 +13,19 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AdvertController extends Controller
 {
-    public function menuAction($limit)
-    {
-        // On fixe en dur une liste ici, bien entendu par la suite
-        // on la récupérera depuis la BDD !
-        $listAdverts = array(
-            array('id' => 2, 'title' => 'Recherche développeur Symfony'),
-            array('id' => 5, 'title' => 'Mission de webmaster'),
-            array('id' => 9, 'title' => 'Offre de stage webdesigner')
-        );
-  
-      return $this->render('@OCPlatform/Advert/menu.html.twig', array(
-        // Tout l'intérêt est ici : le contrôleur passe
-        // les variables nécessaires au template !
-        'listAdverts' => $listAdverts
-      ));
-    }
-
     public function indexAction($page)
     {
         if ($page < 1) {
             throw $this->createNotFoundException('page "'.$page.'" inexistante.');
         }
+        $listAdverts = $this->getDoctrine()->getManager()
+                            ->getRepository('OCPlatformBundle:Advert')
+                            ->getAdverts();
 
-        // Notre liste d'annonce en dur
-        $listAdverts = array(
-            array(
-            'title'   => 'Recherche développpeur Symfony',
-            'id'      => 1,
-            'author'  => 'Alexandre',
-            'content' => 'Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…',
-            'date'    => new \Datetime()),
-            array(
-            'title'   => 'Mission de webmaster',
-            'id'      => 2,
-            'author'  => 'Hugo',
-            'content' => 'Nous recherchons un webmaster capable de maintenir notre site internet. Blabla…',
-            'date'    => new \Datetime()),
-            array(
-            'title'   => 'Offre de stage webdesigner',
-            'id'      => 3,
-            'author'  => 'Mathieu',
-            'content' => 'Nous proposons un poste pour webdesigner. Blabla…',
-            'date'    => new \Datetime())
-        );
         return $this->render('@OCPlatform/Advert/index.html.twig', [
             'listAdverts' => $listAdverts
         ]);
     }
-
 
     public function viewAction($id)
     {
@@ -75,11 +39,10 @@ class AdvertController extends Controller
             throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
         }
 
-        // On avait déjà récupéré la liste des candidatures
         $listApplications = $em->getRepository('OCPlatformBundle:Application')
                                ->findBy(array('advert' => $advert));
 
-        // On récupère maintenant la liste des AdvertSkill
+        // On récupère les AdvertSkill de l'annonce
         $listAdvertSkills = $em->getRepository('OCPlatformBundle:AdvertSkill')
                                ->findBy(array('advert' => $advert));
 
@@ -90,74 +53,40 @@ class AdvertController extends Controller
             ]);
     }
 
-
     public function addAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $advert = new Advert();
-        $advert->setTitle('Recherche développeur Node.JS.');
-        $advert->setAuthor('Mr Redwan');
-        $advert->setContent("Nous recherchons un développeur Node.JS débutant sur Rouen. Blabla…");
 
-        // $listSkills = $em->getRepository('OCPlatformBundle:Skill')->findAll();
-        // foreach ($listSkills as $skill) {
-        //     $advertSkill = new AdvertSkill();
-        //     $advertSkill->setAdvert($advert);
-        //     $advertSkill->setSkill($skill);
-        //     $advertSkill->setLevel('Débutant');
-        //     $em->persist($advertSkill);
-        // }
+        // Pas de formulaire pour l'instant
+        if ($request->isMethod('POST')) {
+            $request->getSession()->getFlashBag()->add('notice', 'Annonce bien modifiée.');
 
-        $application1 = new Application();
-        $application1->setAuthor('Abdoulaye');
-        $application1->setContent("J'ai toutes les qualités requises.");
-
-        $application2 = new Application();
-        $application2->setAuthor('Mariame');
-        $application2->setContent("Je suis très motivé.");
-
-        $application1->setAdvert($advert);
-        $application2->setAdvert($advert);
-
-        $em->persist($advert);
-        $em->persist($application1);
-        $em->persist($application2);
-        $em->flush();
-
-        return $this->render('@OCPlatform/Advert/add.html.twig', [
-            'advert' => $advert
-        ]);
+            return $this->redirectToRoute('oc_platform_view', [
+                'id' => $advert->getId()
+            ]);
+        }
+        
+        return $this->render('@OCPlatform/Advert/add.html.twig');
     }
 
 
     public function editAction(Request $request, $id)
     {
-        if ($request->isMethod('POST')) {
-            $this->addFlash('notice', 'Annonce bien modifiée.');
-            return $this->redirectToRoute('oc_advert_view', ['id' => 5]);
-        }
-
-        /* Modification d'une image */ 
         $em = $this->getDoctrine()->getManager();
-        $repo = $em->getRepository('OCPlatformBundle:Advert');
-        $advert = $repo->find($id);
+        $advert = $em->getRepository('OCPlatformBundle:Advert')->find($id);
+
         if (null === $advert) {
             throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
         }
-        $advert->getImage()->setUrl("https://place-hold.it/300x150");
-
-         // La méthode findAll retourne toutes les catégories de la base de données
-        $listCategories = $em->getRepository('OCPlatformBundle:Category')->findAll();
-
-        // On boucle sur les catégories pour les lier à l'annonce
-        foreach ($listCategories as $category) {
-            $advert->addCategory($category);
+        
+        // Pas de formulaire
+        if ($request->isMethod('POST')) {
+            $this->addFlash('notice', 'Annonce bien modifiée.');
+            
+            return $this->redirectToRoute('oc_advert_view', [
+                'id' => $advert->getId()
+            ]);
         }
-  
-      // Pour persister le changement dans la relation, il faut persister l'entité propriétaire
-      // Ici, Advert est le propriétaire, donc inutile de la persister car on l'a récupérée depuis Doctrine
-
-        $em->flush();
 
         return $this->render('@OCPlatform/Advert/edit.html.twig', [
             'advert' => $advert
@@ -181,37 +110,25 @@ class AdvertController extends Controller
             $advert->removeCategory($category);
         }
 
-        // Pour persister le changement dans la relation, il faut persister l'entité propriétaire
-        // Ici, Advert est le propriétaire, donc inutile de la persister car on l'a récupérée depuis Doctrine
-
-        // On déclenche la modification
         $em->flush();
 
         return $this->render('@OCPlatform/Advert/delete.html.twig');
     }
 
-
-    public function listAction()
+    public function menuAction($limit)
     {
-        $listAdverts = $this
-            ->getDoctrine()->getManager()
-            // ->getRepository('OCPlatformBundle:Advert')
-            ->getRepository('OCPlatformBundle:Application')
-            ->getApplicationsWithAdvert(3);
-            // ->getAdvertWithCategories(['Graphisme', 'Réseau']);
-            // ->getAdvertWithApplications();
+        $em = $this->getDoctrine()->getManager();
 
-        // foreach ($listAdverts as $advert) {
-        //     // Ne déclenche pas de req : les candidature st déjà chargées !
-        //     // Vous pourriez faire 1 boucle dessus pr les afficher tous
-        //     var_dump($advert);
-        //     var_dump($advert->getApplications());
-        //     // $advert->getApplications();
-        // }
-
-        return $this->render('@OCPlatform/Advert/test.html.twig', [
-            'listAdverts' => $listAdverts
-        ]);
+        $listAdverts = $em->getRepository('OCPlatformBundle:Advert')->findBy(
+            array(),
+            array('date', 'desc'),
+            $limit,
+            0
+        );
+  
+      return $this->render('@OCPlatform/Advert/menu.html.twig', array(
+        'listAdverts' => $listAdverts
+      ));
     }
 
 
@@ -223,106 +140,18 @@ class AdvertController extends Controller
           );
     }
 
-}
 
-
-// ++++ TESTS : ENTREE EN MATIERE
-/*
-// use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Routing\Generator\UrlGenerator;
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\Route as RouteGen;
-use Symfony\Component\Routing\RouteCollection;
-
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-*/
-
-// class AdvertController extends AbstractController // Pour générer URL
-// class AdvertController extends Controller
-// {
-    // Route de test : entrée en matière
-    /* public function index1Action()
+    // *** MES  TESTS *************************
+    public function listAction()
     {
-        return $this->render('@OCPlatform/Advert/index.html.twig', [
-            'name' => 'Winzou'
+        $listAdverts = $this
+            ->getDoctrine()->getManager()
+            ->getRepository('OCPlatformBundle:Advert')
+            ->getAdvertWithCategories(['Graphisme', 'Réseau']);
+
+        return $this->render('@OCPlatform/Advert/test.html.twig', [
+            'listAdverts' => $listAdverts
         ]);
-    } */
+    }
 
-    /* public function index2Action()
-    {
-        $content = "Bye Bye World !";
-        return new Response($content);
-    } */
-    //-----------------------------------------------------------------
-
-    // /**
-    //  * Utiliser annotations pour definir les routes
-    //  * @Route("/advert", name="oc_advert_index")
-    //  */
-    // public function indexAction($page)
-    // {
-        // $routes = new RouteCollection();
-        // $routes->add('oc_advert_view', new RouteGen('/view/{id}'));
-
-        // $context = new RequestContext('');
-        // $generator = new UrlGenerator($routes, $context);
-
-        // $url = $generator->generate(
-        //     'oc_advert_view', // 1er argument : le nom de la route
-        //     ['id' => 7]       // 2e argument : les paramètres
-        // );
-
-        // $url = $this->generateUrl(
-        //     'oc_advert_view', // 1er argument : le nom de la route
-        //     ['id' => 7]       // 2e argument : les paramètres
-        // );
-        // return new Response("L'URL de l'annonce d'id 7 est : ".$url);
-    // }
-    // ----------------------------------------------------------------
-
-
-    // public function indexAction($page)
-    // {
-    //     return $this->render('@OCPlatform/Advert/index.html.twig', [
-    //         'name' => 'Winzou'
-    //     ]);
-    // }
-
-
-    // public function viewAction(Request $request, SessionInterface $session, $id)
-    // {
-
-        // $response = new Response();
-        // $response->setContent("Ceci est une page d'erreur 404");
-        // $response->setStatusCode(Response::HTTP_NOT_FOUND);
-        // return $response;
-
-        // $url = $this->generateUrl('oc_advert_index');
-        // return new RedirectResponse($url);
-        // return $this->redirect($url);
-        // return $this->redirectToRoute('oc_advert_index');
-
-        // Création de reponse en JSON avec json_encode()
-        /* $response = new Response(json_encode(['id' => $id])); */
-        //definition du Content-Type pr q la navig renvoir du JSON et non HTML
-        /* $response->headers->set('Content-Type', 'application/json');
-        return $response; */
-        // return new JsonResponse(['id' => $id]);
-
-        // $userId = $session->get('userId');  // recupère la var userId
-        // $session->set('userId', 91);        // new valeur pr la var userId
-        // return new Response("<body>Je suis une page de test, RAS</body>");
-    // }
-
-    // public function viewSlugAction($slug, $year, $_format)
-    // {
-    //     return new Response(
-    //         "On pourrait afficher l'annonce correspondant au
-    //         slug '".$slug."', créée en ".$year." et au format ".$_format."."
-    //       );
-    // }
-
-// }
+}

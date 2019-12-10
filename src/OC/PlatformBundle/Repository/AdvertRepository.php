@@ -12,15 +12,24 @@ use Doctrine\ORM\QueryBuilder;
  */
 class AdvertRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function getAdverts()
+    {
+        $query = $this->createQueryBuilder('a')
+                      ->leftJoin('a.image', 'i')
+                      ->addSelect('i')
+                      ->leftJoin('a.categories', 'c')
+                      ->addSelect('c')
+                      ->orderBy('a.date', 'DESC')
+                      ->getQuery();
+
+        return $query->getResult();
+    }
+
+
+    /* ***************************************************** */
+
     public function myFindAll()
     {
-        // Méthode 1 : en passant par l'EntityManager
-        /* $queryBuilder = $this->_em->createQueryBuilder()
-        ->select('a')
-        ->from($this->_entityName, 'a'); */
-        // Ds 1 repository, $this->_entityName est le namespace de l'entité 
-        // gérée  // Ici, il vaut donc OC\PlatformBundle\Entity\Advert
-
         return $this
             ->createQueryBuilder('a')
             ->getQuery()
@@ -54,10 +63,8 @@ class AdvertRepository extends \Doctrine\ORM\EntityRepository
     public function whereCurrentYear(QueryBuilder $qb)
     {
         $qb->andWhere('a.date BETWEEN :start AND :end')
-            ->setParameter('start', new \Datetime(date('Y').'-01-01'))  
-            // Date entre le 1er janvier de cette année
+            ->setParameter('start', new \Datetime(date('Y').'-01-01'))
             ->setParameter('end',   new \Datetime(date('Y').'-12-31'));  
-            // Et le 31 décembre de cette année
     }
 
     public function myFind()
@@ -105,26 +112,15 @@ class AdvertRepository extends \Doctrine\ORM\EntityRepository
 
     public function getAdvertWithCategories(array $categoryNames)
     {
-        // $qb = $this->createQueryBuilder('a')
-        //            ->innerJoin('a.categories', 'cat')
-        //            ->addSelect('cat')
-        //            ->where($qb->expr()->in('cat.name', $categoryNames));
-
-        // return $qb->getQuery()->getResult();
         $qb = $this->createQueryBuilder('a');
+        $qb->innerJoin('a.categories', 'c')
+           ->addSelect('c');
 
-    // On fait une jointure avec l'entité Category avec pour alias « c »
-    $qb
-      ->innerJoin('a.categories', 'c')
-      ->addSelect('c');
-
-    // Puis on filtre sur le nom des catégories à l'aide d'un IN
-    $qb->where($qb->expr()->in('c.name', $categoryNames));
-    // La syntaxe du IN et d'autres expressions se trouve dans la documentation Doctrine
-
-    // Enfin, on retourne le résultat
-    return $qb
-      ->getQuery()
-      ->getResult();
+        // Puis on filtre sur le nom des catégories à l'aide d'un IN
+        $qb->where($qb->expr()->in('c.name', $categoryNames));
+        
+        // Enfin, on retourne le résultat
+        return $qb->getQuery()->getResult();
     }
+
 }
