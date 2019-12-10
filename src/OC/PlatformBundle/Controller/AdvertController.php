@@ -8,7 +8,13 @@ use OC\PlatformBundle\Entity\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AdvertController extends Controller
@@ -64,18 +70,51 @@ class AdvertController extends Controller
 
     public function addAction(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        // On crée un objet Advert
+        $advert = new Advert();
+        // $advert = $this->getDoctrine()->getManager()
+        //                 ->getRepository('OCPlatformBundle:Advert')->find(14);
 
-        // Pas de formulaire pour l'instant
+        // On crée le FormBuilder grâce au service form factory
+        $formBuilder = $this->get('form.factory')->createBuilder(FormType::class, $advert);
+
+        // On ajoute les champs de l'entité que l'on veut à notre formulaire
+        $formBuilder
+            ->add('date',      DateType::class)
+            ->add('title',     TextType::class)
+            ->add('content',   TextareaType::class)
+            ->add('author',    TextType::class)
+            ->add('published', CheckboxType::class, [
+                'required' => false
+            ])
+            ->add('save',      SubmitType::class);
+
+        // À partir du formBuilder, on génère le formulaire
+        $form = $formBuilder->getForm();
+
         if ($request->isMethod('POST')) {
-            $request->getSession()->getFlashBag()->add('notice', 'Annonce bien modifiée.');
+            // On fait le lien Requête <-> Formulaire
+            // $advert contient les valeurs entrées ds le formulaire par user
+            $form->handleRequest($request);
 
-            return $this->redirectToRoute('oc_platform_view', [
-                'id' => $advert->getId()
-            ]);
+            if ($form->isValid()) {
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($advert);
+                $em->flush();
+                $request->getSession()->getFlashBag()
+                        ->add('notice', 'Annonce bien enregistrée.');
+                
+                return $this->redirectToRoute('oc_advert_view', [
+                    'id' => $advert->getId()
+                ]);
+            }
         }
-        
-        return $this->render('@OCPlatform/Advert/add.html.twig');
+
+        // On passe la méthode createView() du formulaire à la vue
+        // afin qu'elle puisse afficher le formulaire toute seule
+        return $this->render('@OCPlatform/Advert/add.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
 
 
