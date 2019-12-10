@@ -4,7 +4,8 @@
 //UD 3-Entité propriétaire de "Category" (ajouter l'attr "categories")
 
 /* BD 4-Entité Inverse de "Application (ajouter pté pr rendre Bidirection°)
-    et on ajoute mappedBy="advert" ds l'annotation + Getter & Setter
+    et on ajoute mappedBy="advert" ds l'annotation + Getter & Setter.
+   BD 5- Inverse de "AdvertSkill" (ajout: mappedBy="advert")
 */
 
 namespace OC\PlatformBundle\Entity;
@@ -97,6 +98,12 @@ class Advert
      * @ORM\Column(name="slug", type="string", length=255, unique=true)
      */
     private $slug;
+
+    /**
+     * @ORM\OneToMany(targetEntity="OC\PlatformBundle\Entity\AdvertSkill",
+     * mappedBy="advert")
+     */
+    private $advertSkills;
 
 
 
@@ -430,4 +437,38 @@ class Advert
         $this->nbApplications--;
     }
 
+
+    /**
+     * Add advertSkill
+     *
+     * @param \OC\PlatformBundle\Entity\AdvertSkill $advertSkill
+     *
+     * @return Advert
+     */
+    public function addAdvertSkill(\OC\PlatformBundle\Entity\AdvertSkill $advertSkill)
+    {
+        $this->advertSkills[] = $advertSkill;
+
+        return $this;
+    }
+
+    /**
+     * Remove advertSkill
+     *
+     * @param \OC\PlatformBundle\Entity\AdvertSkill $advertSkill
+     */
+    public function removeAdvertSkill(\OC\PlatformBundle\Entity\AdvertSkill $advertSkill)
+    {
+        $this->advertSkills->removeElement($advertSkill);
+    }
+
+    /**
+     * Get advertSkills
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getAdvertSkills()
+    {
+        return $this->advertSkills;
+    }
 }

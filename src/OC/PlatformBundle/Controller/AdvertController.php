@@ -18,12 +18,21 @@ class AdvertController extends Controller
         if ($page < 1) {
             throw $this->createNotFoundException('page "'.$page.'" inexistante.');
         }
+        $nbPerPage = 3;
         $listAdverts = $this->getDoctrine()->getManager()
                             ->getRepository('OCPlatformBundle:Advert')
-                            ->getAdverts();
+                            ->getAdverts($page, $nbPerPage);
+        
+        $nbPages = ceil(count($listAdverts) / $nbPerPage);
+
+        if ($page > $nbPages) {
+            throw $this->createNotFoundException('page "'.$page.'" inexistante.');
+        }
 
         return $this->render('@OCPlatform/Advert/index.html.twig', [
-            'listAdverts' => $listAdverts
+            'listAdverts' => $listAdverts,
+            'nbPages' => $nbPages,
+            'page' => $page
         ]);
     }
 
@@ -121,7 +130,7 @@ class AdvertController extends Controller
 
         $listAdverts = $em->getRepository('OCPlatformBundle:Advert')->findBy(
             array(),
-            array('date', 'desc'),
+            array('date' => 'DESC'),
             $limit,
             0
         );
@@ -147,7 +156,8 @@ class AdvertController extends Controller
         $listAdverts = $this
             ->getDoctrine()->getManager()
             ->getRepository('OCPlatformBundle:Advert')
-            ->getAdvertWithCategories(['Graphisme', 'Réseau']);
+            // ->getAdvertWithCategories(['Graphisme', 'Réseau']);
+            ->getAdvertsWithSkill();
 
         return $this->render('@OCPlatform/Advert/test.html.twig', [
             'listAdverts' => $listAdverts
