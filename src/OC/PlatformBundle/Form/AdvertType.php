@@ -24,7 +24,7 @@ class AdvertType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         // Arbitrairemt, on récupère ts les catégorie qui commencent par "D"
-        $pattern = 'G%';
+        $pattern = 'D%';
 
         $builder
             ->add('date',      DateTimeType::class)
@@ -35,9 +35,9 @@ class AdvertType extends AbstractType
             ->add('image',     ImageType::class)
             ->add('categories', EntityType::class, [
                 'class' => 'OCPlatformBundle:Category',
-                'choice_label'  => 'name',
+                'choice_label'  => 'display',
                 'multiple'      => true,
-                'expanded'      => false,
+                'expanded'      => false, /* Liste */
                 'query_builder' => function(CategoryRepository $repository) use($pattern) {
                     return $repository->getLikeQueryBuilder($pattern);
                   }
