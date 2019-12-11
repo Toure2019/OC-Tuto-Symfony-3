@@ -67,7 +67,7 @@ class Advert
 
     /**
      * @ORM\OneToOne(targetEntity="OC\PlatformBundle\Entity\Image", 
-     * cascade={"persist"})
+     * cascade={"persist", "remove"})
      */
     private $image; 
 

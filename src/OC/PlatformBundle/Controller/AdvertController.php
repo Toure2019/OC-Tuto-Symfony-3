@@ -138,6 +138,7 @@ class AdvertController extends Controller
             $advert->removeCategory($category);
         }
 
+        $em->remove($advert);   // Suppression de l'objet recherché
         $em->flush();
 
         return $this->render('@OCPlatform/Advert/delete.html.twig');
