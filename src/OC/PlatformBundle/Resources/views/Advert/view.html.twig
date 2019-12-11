@@ -11,7 +11,7 @@
   <h2>
     {# On vérifie qu'une image soit bien associée à l'annonce #}
     {% if advert.image is not null %}
-      <img src="{{ advert.image.url }}" alt="{{ advert.image.alt }}" width="150" height="100">
+      <img src="{{ asset(advert.image.webPath) }}" alt="{{ advert.image.alt }}" width="150" height="100">
     {% endif %}
     {{ advert.title }}
   </h2>
