@@ -31,7 +31,6 @@ class AdvertType extends AbstractType
             ->add('title',     TextType::class)
             ->add('author',    TextType::class)
             ->add('content',   TextareaType::class)
-            ->add('published', CheckboxType::class, ['required' => false])
             ->add('image',     ImageType::class)
             ->add('categories', EntityType::class, [
                 'class' => 'OCPlatformBundle:Category',
@@ -44,16 +43,30 @@ class AdvertType extends AbstractType
             ])
             ->add('save',      SubmitType::class);
 
-            // ->add('updatedAt')
-            // ->add('nbApplications')
-            // ->add('slug')
-
-            // ->add('categories', CollectionType::class, [
-            //     'entry_type' => CategoryType::class,
-            //     'allow_add' => true,
-            //     'allow_delete' => true
-            // ])  /* Pour le cas champs multiple */
-        
+        // On ajoute une fonction qui va écouter un évènement
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,    // 1er argument : L'évènement qui nous intéresse : ici, PRE_SET_DATA
+            
+            function(FormEvent $event) { // 2e argument : La fonction à     exécuter lorsque l'évènement est déclenché
+                // On récupère notre objet Advert sous-jacent
+                $advert = $event->getData();
+  
+                // Cette condition est importante, on en reparle plus loin
+                if (null === $advert) {
+                    return; // On sort de la fonction sans rien faire lorsque $advert vaut null
+                 }
+  
+                // Si l'annonce n'est pas publiée, ou si elle n'existe pas encore en base (id est null)
+                if (!$advert->getPublished() || null === $advert->getId()) {
+                    // Alors on ajoute le champ published
+                    $event->getForm()->add('published', CheckboxType::class, array('required' => false));
+                    
+                } else {
+                    // Sinon, on le supprime
+                    $event->getForm()->remove('published');
+                }
+            }
+        );
     }
     
     /**
