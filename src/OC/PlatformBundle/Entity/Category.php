@@ -29,6 +29,16 @@ class Category
      */
     private $name;
 
+    /**
+     * @var string
+     */
+    private $display;
+
+
+    public function getDisplay()
+    {
+        return $this->id.'-'.$this->name;
+    }
 
     /**
      * Get id

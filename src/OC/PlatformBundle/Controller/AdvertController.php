@@ -6,6 +6,7 @@ use OC\PlatformBundle\Entity\Advert;
 use OC\PlatformBundle\Form\AdvertType;
 use OC\PlatformBundle\Entity\AdvertSkill;
 use OC\PlatformBundle\Entity\Application;
+use OC\PlatformBundle\Form\AdvertEditType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -99,6 +100,7 @@ class AdvertController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $advert = $em->getRepository('OCPlatformBundle:Advert')->find($id);
+        $form = $this->createForm(AdvertEditType::class, $advert);
 
         if (null === $advert) {
             throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
@@ -114,6 +116,7 @@ class AdvertController extends Controller
         }
 
         return $this->render('@OCPlatform/Advert/edit.html.twig', [
+            'form' => $form->createView(),
             'advert' => $advert
         ]);
     }
