@@ -100,14 +100,16 @@ class AdvertController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $advert = $em->getRepository('OCPlatformBundle:Advert')->find($id);
-        $form = $this->createForm(AdvertEditType::class, $advert);
 
         if (null === $advert) {
             throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
         }
         
-        // Pas de formulaire
-        if ($request->isMethod('POST')) {
+        $form = $this->createForm(AdvertEditType::class, $advert);
+       
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+
+            $em->flush();
             $this->addFlash('notice', 'Annonce bien modifiée.');
             
             return $this->redirectToRoute('oc_advert_view', [
@@ -122,26 +124,29 @@ class AdvertController extends Controller
     }
 
 
-    public function deleteAction($id)
+    public function deleteAction(Request $request, $id)
     {
         $em = $this->getDoctrine()->getManager();
-
-        // On récupère l'annonce $id
         $advert = $em->getRepository('OCPlatformBundle:Advert')->find($id);
 
         if (null === $advert) {
-        throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
+            throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
         }
 
-        // On boucle sur les catégories de l'annonce pour les supprimer
-        foreach ($advert->getCategories() as $category) {
-            $advert->removeCategory($category);
+        $form = $this->get('form.factory')->create();
+
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $em->remove($advert);
+            $em->flush();
+
+            $request->getSession()->getFlashBag()->add('notice', "L'annoce a bien été supprimée");
+            return $this->redirectToRoute('oc_advert_home');
         }
 
-        $em->remove($advert);   // Suppression de l'objet recherché
-        $em->flush();
-
-        return $this->render('@OCPlatform/Advert/delete.html.twig');
+        return $this->render('@OCPlatform/Advert/delete.html.twig', [
+            'advert' => $advert,
+            'form' => $form->createView()
+        ]);
     }
 
     public function menuAction($limit)
@@ -173,15 +178,26 @@ class AdvertController extends Controller
     // *** MES  TESTS *************************
     public function listAction()
     {
-        $listAdverts = $this
-            ->getDoctrine()->getManager()
-            ->getRepository('OCPlatformBundle:Advert')
-            // ->getAdvertWithCategories(['Graphisme', 'Réseau']);
-            ->getAdvertsWithSkill();
+        $advert = new Advert;
+        
+    $advert->setDate(new \Datetime());  // Champ « date » OK
+    $advert->setTitle('Recherche de developpeur Symfony 3');           // Champ « title » incorrect : moins de 10 caractères
+    $advert->setContent('abandon dept');    // Champ « content » incorrect : on ne le définit pas ou Contient un "mot interdit"
+    $advert->setAuthor('A');            // Champ « author » incorrect : moins de 2 caractères
+        
+    // On récupère le service validator
+    $validator = $this->get('validator');
+        
+    // On déclenche la validation sur notre object
+    $listErrors = $validator->validate($advert);
 
-        return $this->render('@OCPlatform/Advert/test.html.twig', [
-            'listAdverts' => $listAdverts
-        ]);
+    // Si $listErrors n'est pas vide, on affiche les erreurs
+    if(count($listErrors) > 0) {
+      // $listErrors est un objet, sa méthode __toString permet de lister joliement les erreurs
+      return new Response((string) $listErrors);
+    } else {
+      return new Response("L'annonce est valide !");
+    }
     }
 
 }
