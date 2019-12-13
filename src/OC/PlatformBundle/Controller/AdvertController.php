@@ -17,7 +17,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class AdvertController extends Controller
 {
@@ -70,8 +72,19 @@ class AdvertController extends Controller
             ]);
     }
 
+    /**
+     * 2- deuxième méthode pour vérifier l'autorisation user (2/4)
+     * 
+     * @Security("has_role('ROLE_AUTEUR')")
+     */
     public function addAction(Request $request)
     {
+        // 1-On vérifie si l'user dispose du rôle ROLE_AUTEUR
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_AUTEUR')) {
+            // Sinon on déclenche une exception <<Accès Interdit>>
+            throw new AccessDeniedException('Accès limité aux auteurs.');
+        }
+
         $advert = new Advert();
         $form = $this->createForm(AdvertType::class, $advert);
         //$form=$this->get('form.factory')->create(AdvertType::class,$advert);
