@@ -4,8 +4,9 @@ security:
     encoders:
         Symfony\Component\Security\Core\User\User: plaintext
 
-    role_hierarchy:
-        ROLE_ADMIN: ROLE_USER
+    # Hiérarchie des rôles uniquement et non l'exhaustivité
+    role_hierarchy:  
+        ROLE_ADMIN: ROLE_USER, ROLE_AUTEUR, ROLE_MODERATEUR
         ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
 
     # https://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
@@ -50,4 +51,8 @@ security:
             #form_login: ~
 
     access_control:
+        - { path: ^/admin, roles: ROLE_ADMIN }
+
+        # permet é=mnt de sécuriser vos URL par IP ou canal (http ou https),
+        # - { path: ^/admin, ip: 127.0.0.1, requires_channel: https }
         # - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
