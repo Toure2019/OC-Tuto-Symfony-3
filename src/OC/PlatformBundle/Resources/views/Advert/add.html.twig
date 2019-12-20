@@ -10,7 +10,12 @@
 
   <h2>Ajouter une annonce</h2>
 
-  {{ include("@OCPlatform/Advert/form.html.twig") }}
+  {# On n'affiche le lien « Ajouter une annonce » qu'aux auteurs
+  (et admins, qui héritent du rôle auteur) #}
+
+  {% if is_granted('ROLE_AUTEUR') %}
+    {{ include("@OCPlatform/Advert/form.html.twig") }}
+  {% endif %}
 
   <p>
     Vous ajoutez une annonce, merci de respecter

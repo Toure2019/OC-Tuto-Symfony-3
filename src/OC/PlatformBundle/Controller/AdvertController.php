@@ -72,18 +72,18 @@ class AdvertController extends Controller
             ]);
     }
 
-    /**
-     * 2- deuxième méthode pour vérifier l'autorisation user (2/4)
-     * 
-     * @Security("has_role('ROLE_AUTEUR')")
-     */
+    // /**
+    //  * 2- deuxième méthode pour vérifier l'autorisation user (2/4)
+    //  * 
+    //  * @Security("has_role('ROLE_AUTEUR')")
+    //  */
     public function addAction(Request $request)
     {
         // 1-On vérifie si l'user dispose du rôle ROLE_AUTEUR
-        if (!$this->get('security.authorization_checker')->isGranted('ROLE_AUTEUR')) {
-            // Sinon on déclenche une exception <<Accès Interdit>>
-            throw new AccessDeniedException('Accès limité aux auteurs.');
-        }
+        // if (!$this->get('security.authorization_checker')->isGranted('ROLE_AUTEUR')) {
+        //     // Sinon on déclenche une exception <<Accès Interdit>>
+        //     throw new AccessDeniedException('Accès limité aux auteurs.');
+        // }
 
         $advert = new Advert();
         $form = $this->createForm(AdvertType::class, $advert);
@@ -191,26 +191,44 @@ class AdvertController extends Controller
     // *** MES  TESTS *************************
     public function listAction()
     {
+        // Exemple FOSUserBundle
+        // Pour récupérer le service UserManager du bundle
+        $userManager = $this->get('fos_user.user_manager');
+
+        // Pour charger un utilisateur
+        $user = $userManager->findUserBy(array('username' => 'winzou'));
+
+        // Pour modifier un utilisateur
+        $user->setEmail('cetemail@nexiste.pas');
+        $userManager->updateUser($user); // Pas besoin de faire un flush avec l'EntityManager, cette méthode le fait toute seule !
+
+        // Pour supprimer un utilisateur
+        $userManager->deleteUser($user);
+
+        // Pour récupérer la liste de tous les utilisateurs
+        $users = $userManager->findUsers();
+
+
         $advert = new Advert;
         
-    $advert->setDate(new \Datetime());  // Champ « date » OK
-    $advert->setTitle('Recherche de developpeur Symfony 3');           // Champ « title » incorrect : moins de 10 caractères
-    $advert->setContent('abandon dept');    // Champ « content » incorrect : on ne le définit pas ou Contient un "mot interdit"
-    $advert->setAuthor('A');            // Champ « author » incorrect : moins de 2 caractères
-        
-    // On récupère le service validator
-    $validator = $this->get('validator');
-        
-    // On déclenche la validation sur notre object
-    $listErrors = $validator->validate($advert);
+        $advert->setDate(new \Datetime());  // Champ « date » OK
+        $advert->setTitle('Recherche de developpeur Symfony 3');            // Champ « title » incorrect : moins de 10 caractères
+        $advert->setContent('abandon dept');    // Champ « content » incorrect : on ne le définit pas ou Contient un "mot interdit"
+        $advert->setAuthor('A');            // Champ « author » incorrect : moins de 2 caractères
+            
+        // On récupère le service validator
+        $validator = $this->get('validator');
+            
+        // On déclenche la validation sur notre object
+        $listErrors = $validator->validate($advert);
 
-    // Si $listErrors n'est pas vide, on affiche les erreurs
-    if(count($listErrors) > 0) {
-      // $listErrors est un objet, sa méthode __toString permet de lister joliement les erreurs
-      return new Response((string) $listErrors);
-    } else {
-      return new Response("L'annonce est valide !");
-    }
+        // Si $listErrors n'est pas vide, on affiche les erreurs
+        if(count($listErrors) > 0) {
+            // $listErrors est un objet, sa méthode __toString permet de lister joliement les erreurs
+            return new Response((string) $listErrors);
+        } else {
+            return new Response("L'annonce est valide !");
+        }
     }
 
 }
