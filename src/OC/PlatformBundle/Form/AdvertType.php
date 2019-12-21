@@ -3,8 +3,10 @@
 namespace OC\PlatformBundle\Form;
 
 use OC\PlatformBundle\Form\ImageType;
+use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use OC\PlatformBundle\Form\CategoryType;
+use OC\PlatformBundle\Form\CkeditorType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -16,7 +18,6 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\FormEvent;
 
 class AdvertType extends AbstractType
 {
@@ -33,6 +34,7 @@ class AdvertType extends AbstractType
             ->add('title',     TextType::class)
             ->add('author',    TextType::class)
             ->add('content',   TextareaType::class)
+            // ->add('content',   CkeditorType::class)
             ->add('image',     ImageType::class)
             ->add('categories', EntityType::class, [
                 'class' => 'OCPlatformBundle:Category',
