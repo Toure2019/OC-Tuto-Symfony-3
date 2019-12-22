@@ -89,3 +89,9 @@ fos_user:
     from_email:
         address:     "%mailer_user%"
         sender_name: "toure"
+
+services:
+    twig.extension.intl:
+        class: Twig_Extensions_Extension_Intl
+        tags:
+            - { name: twig.extension }

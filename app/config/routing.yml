@@ -1,6 +1,8 @@
 oc_platform:
     resource: "@OCPlatformBundle/Resources/config/routing.yml"
-    prefix:   /advert
+    prefix:   /{_locale}/advert
+    requirements:
+        _locale: en|fr
 
 app:
     resource: '@AppBundle/Controller/'

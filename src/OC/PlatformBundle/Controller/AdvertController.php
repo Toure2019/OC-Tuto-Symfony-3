@@ -198,6 +198,13 @@ class AdvertController extends Controller
           );
     }
 
+    public function translationAction($name)
+    {
+        return $this->render('@OCPlatform/Advert/translation.html.twig', [
+            'name' => $name
+        ]);
+    }
+
 
     // *** MES  TESTS *************************
     public function listAction()
