@@ -7,6 +7,8 @@ use OC\PlatformBundle\Form\AdvertType;
 use OC\PlatformBundle\Entity\AdvertSkill;
 use OC\PlatformBundle\Entity\Application;
 use OC\PlatformBundle\Form\AdvertEditType;
+use OC\PlatformBundle\Event\PlatformEvents;
+use OC\PlatformBundle\Event\MessagePostEvent;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -91,6 +93,15 @@ class AdvertController extends Controller
 
         if ($request->isMethod('POST') && 
             $form->handleRequest($request)->isValid()) {
+            
+            // On crée l'event avc ses 2 arguments
+            $event = new MessagePostEvent($advert->getContent(), $advert->getUser());
+
+            // On déclenche l'évent
+            $this->get('event_dispatcher')->dispatch(PlatformEvents::POST_MESSAGE, $event);
+
+            // On récupère ce qui a été modifié par les listeners (le msg)
+            $advert->setContent($event->getMessage());
 
             $em = $this->getDoctrine()->getManager();
             $em->persist($advert);

@@ -13,9 +13,9 @@
   {# On n'affiche le lien « Ajouter une annonce » qu'aux auteurs
   (et admins, qui héritent du rôle auteur) #}
 
-  {% if is_granted('ROLE_AUTEUR') %}
+  {# {% if is_granted('ROLE_AUTEUR') %} #}
     {{ include("@OCPlatform/Advert/form.html.twig") }}
-  {% endif %}
+  {# {% endif %} #}
 
   <p>
     Vous ajoutez une annonce, merci de respecter
