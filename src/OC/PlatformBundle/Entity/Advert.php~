@@ -69,7 +69,7 @@ class Advert
      * @Assert\NotBlank()
      * @Antiflood()
      */
-    private $content; 
+    private $content;
 
     /**
      * @ORM\Column(name="published", type="boolean")
@@ -521,29 +521,5 @@ class Advert
     public function getAdvertSkills()
     {
         return $this->advertSkills;
-    }
-
-    /**
-     * Set user
-     *
-     * @param \OC\UserBundle\Entity\User $user
-     *
-     * @return Advert
-     */
-    public function setUser(\OC\UserBundle\Entity\User $user = null)
-    {
-        $this->user = $user;
-
-        return $this;
-    }
-
-    /**
-     * Get user
-     *
-     * @return \OC\UserBundle\Entity\User
-     */
-    public function getUser()
-    {
-        return $this->user;
     }
 }
