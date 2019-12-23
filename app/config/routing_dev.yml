@@ -22,3 +22,8 @@ oc_platform_paramconverter:
     path: /test/{json}
     defaults:
         _controller: OCPlatformBundle:Advert:paramConverter
+
+# Utiliser la console dans le navigateur: CoreSphereConsoleBundle
+# coresphere_console:
+#     resource:
+#         type: extra
