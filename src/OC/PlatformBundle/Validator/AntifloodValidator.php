@@ -10,7 +10,14 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class AntifloodValidator extends ConstraintValidator
 {
+  /**
+   * @var RequestStack
+   */
   private $requestStack;
+
+  /**
+   * @var EntityManagerInterface
+   */
   private $em;
 
   // Les arguments déclarés dans la définition du service arrivent au constructeur

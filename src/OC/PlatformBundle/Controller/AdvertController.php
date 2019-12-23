@@ -21,6 +21,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class AdvertController extends Controller
@@ -48,7 +49,7 @@ class AdvertController extends Controller
         ]);
     }
 
-    public function viewAction($id)
+    public function viewAction(Advert $advert, $id)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -93,7 +94,7 @@ class AdvertController extends Controller
 
         if ($request->isMethod('POST') && 
             $form->handleRequest($request)->isValid()) {
-            
+        /*    
             // On crée l'event avc ses 2 arguments
             $event = new MessagePostEvent($advert->getContent(), $advert->getUser());
 
@@ -101,8 +102,8 @@ class AdvertController extends Controller
             $this->get('event_dispatcher')->dispatch(PlatformEvents::POST_MESSAGE, $event);
 
             // On récupère ce qui a été modifié par les listeners (le msg)
-            $advert->setContent($event->getMessage());
-
+            $advert->setContent($event->getMessage()); 
+        */
             $em = $this->getDoctrine()->getManager();
             $em->persist($advert);
             $em->flush();
@@ -203,6 +204,14 @@ class AdvertController extends Controller
         return $this->render('@OCPlatform/Advert/translation.html.twig', [
             'name' => $name
         ]);
+    }
+
+    /**
+     * @ParamConverter("json")
+     */
+    public function paramConverterAction($json)
+    {
+        return new Response(print_r($json, true));
     }
 
 
