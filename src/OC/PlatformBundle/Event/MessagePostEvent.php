@@ -8,8 +8,15 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class MessagePostEvent extends Event
 {
-    protected $message;
-    protected $user;
+    /**
+   * @var string
+   */
+  protected $message;
+  
+  /**
+   * @var UserInterface
+   */
+  protected $user;
 
     public function __construct($message, UserInterface $user)
     {

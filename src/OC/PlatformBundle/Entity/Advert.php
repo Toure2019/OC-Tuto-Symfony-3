@@ -129,7 +129,7 @@ class Advert
     */
     public function isAdvertValid()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -137,7 +137,7 @@ class Advert
     */
     public function isTitle()
     {
-        return false;
+        return true;
     }
 
     /**
